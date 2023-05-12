@@ -32,7 +32,7 @@ You can now build and install the package necessary for running the notebook by 
 ```
 pip install QWSearch_rust-0.1.0.tar.gz 
 ```
-**Note that this will install a python package qwsearch on your computer which contains the implementation of the QWSearch algorithm. Tou can uninstall this package with the following command:**
+**Note that this will install a python package qwsearch on your computer which contains the implementation of the QWSearch algorithm. You can uninstall this package with the following command:**
 ```
 pip uninstall QWSearch_rust
 ```
