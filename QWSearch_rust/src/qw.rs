@@ -180,32 +180,30 @@ pub fn tick(mut psi : &mut Array3<Complex<f64>>, search : &Vec<usize>) {
 /*******************************************************************/
 
 
-pub fn hitting_time(n : usize) -> usize {
+pub fn hitting_time(x : f64) -> usize {
     /*
         This function returns the hitting time for a given grid size.
+        The formula sqrt(pi*x*log(x))/4
 
         Entries :
-            n -> Size of the grid.
+            x -> The ratio N/M
         Output : 
             The step at which the probability of success while searching one element will be optimal (for a grid of size nxn).
     */
-    let x = n as f64;
-    let a = (PI/4.)*x*(2.*0.33*x.log(2.)).sqrt();
-    let b = 0.33*(x*x).log(2.);
-    (a-b) as usize
+    ((PI*x*x.ln()).sqrt()/4.).floor() as usize
 }
 
 
 pub fn qw(n : usize, m : usize, search : &Vec<usize>) -> f64 {
     /*
-        This function runs the quantum search and returns the probability of success at the desired step.
+        This function runs the quantum search and returns the probability of success at the desired step for a grid of size N=n*n.
 
         Entries :
             n -> Size of the grid.
             m -> Number of steps.
             search -> List(int) of the searched elements.
         Output :
-            The probability of measuring one of the searched element in a grid of size nxn for each steps between 0 and m.
+            The probability of measuring one of the searched element in a grid of size n*n for each steps between 0 and m.
     */
     let mut psi = Array3::<Complex<f64>>::ones((n, n, 2));
     for i in 0..n {
@@ -224,17 +222,16 @@ pub fn qw(n : usize, m : usize, search : &Vec<usize>) -> f64 {
 
 pub fn qw_signal(n : usize, m : usize, search : &Vec<usize>) -> Vec<f64> {
     /*
-        This function runs the quantum search and returns the probability of success at each steps.
+        This function runs the quantum search and returns the probability of success at each steps for a grid of size N=n*n.
 
         Entries :
             n -> Size of the grid.
             m -> Number of steps.
             search -> List(int) of the searched elements.
         Output :
-            The probability of measuring one of the searched element in a grid of size nxn for each steps between 0 and m.
+            The probability of measuring one of the searched element in a grid of size n*n for each steps between 0 and m.
     */
     let mut psi = Array3::<Complex<f64>>::ones((n, n, 2));
-    //for i in 0..n { for j in 0..n { for k in 0..2 {psi[[i,j,k]] = if (i+j)%2==0 {Complex::new(1.,0.)} else {Complex::new(-1.,0.)}}}}
     for i in 0..n {
         for j in 0..n {
             for k in 0..2 {
@@ -255,7 +252,7 @@ pub fn qw_signal(n : usize, m : usize, search : &Vec<usize>) -> Vec<f64> {
 
 pub fn qw_sample_one(n : usize, nb_searched : usize, scale_hitting_time : bool) -> f64 {
     /*
-        This function runs the quantum search with a configuration of searched elements drawn randomly and returns the probability of success.
+        This function runs the quantum search with a configuration of searched elements drawn randomly and returns the probability of success for a grid of size N=n*n.
 
         Entries :
             n -> Size of the grid.
@@ -270,8 +267,7 @@ pub fn qw_sample_one(n : usize, nb_searched : usize, scale_hitting_time : bool) 
     let range : Vec<usize> = (0..(n*n)).collect();
     let search : Vec<usize> = range.choose_multiple(&mut rng,nb_searched).cloned().collect();
 
-    //let hit = if random_hit {rng.gen_range(0,4*hitting_time(n))} else {hitting_time(n)};
-    let hit = if scale_hitting_time {hitting_time(((n as f64)/(nb_searched as f64).sqrt()) as usize)} else {hitting_time(n)};
+    let hit = if scale_hitting_time {hitting_time(((n*n) as f64)/nb_searched as f64)} else {hitting_time((n*n) as f64)};
 
     qw(n,hit,&search)
 }
@@ -279,7 +275,7 @@ pub fn qw_sample_one(n : usize, nb_searched : usize, scale_hitting_time : bool) 
 
 pub fn qw_sample(n : usize, nb_searched : usize, nb_iter : usize, scale_hitting_time : bool) -> Vec<f64> {
     /*
-        This function runs the quantum search with a configuration of searched elements drawn randomly and returns the probability of success.
+        This function runs the quantum search with a configuration of searched elements drawn randomly and returns the probability of success for a grid of size N=n*n.
 
         Entries :
             n -> Size of the grid.
